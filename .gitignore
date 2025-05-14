@@ -1,5 +1,12 @@
 .direnv/
 .DS_Store
+
+# nix
 result-*
 result
 /.pre-commit-config.yaml
+
+# python
+__pycache__/
+dist/
+.ruff_cache/
