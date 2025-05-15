@@ -8,16 +8,21 @@
   ...
 }:
 let
-  inherit (lib.${namespace}) pythonVersion;
-  currentPackage = inputs.self.packages.${system}.default;
+  inherit (lib.${namespace}) pythonVersion mapPackages toml;
 
   python = pkgs."python${pythonVersion}";
+
+  currentPackage = inputs.self.packages.${system}.default;
 in
 mkShell {
   packages = [
-    (python.withPackages (ps: [
-      currentPackage
-    ]))
+    (python.withPackages (
+      ps:
+      [
+        currentPackage
+      ]
+      ++ mapPackages ps toml.project.dependencies
+    ))
   ];
 
   inputsFrom = [ currentPackage ];

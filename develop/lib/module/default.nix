@@ -1,4 +1,4 @@
-{
+rec {
   stripName =
     dep:
     let
@@ -7,5 +7,10 @@
     in
     if m != null then builtins.head m else dep;
 
+  toml = builtins.fromTOML (builtins.readFile ../../../pyproject.toml);
+
   pythonVersion = "3";
+
+  mapPackages = ps: names: map (dep: ps.${stripName dep}) names;
+
 }
