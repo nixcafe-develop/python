@@ -1,22 +1,18 @@
 {
+  lib,
+  namespace,
   inputs,
   pkgs,
   system,
   ...
 }:
 let
+  inherit (lib.${namespace}) pythonVersion stripName;
   toml = builtins.fromTOML (builtins.readFile ../../../pyproject.toml);
-  python = pkgs.python3;
+  python = pkgs."python${pythonVersion}";
   pythonPkgs = python.pkgs;
-  stripName =
-    dep:
-    let
-      # https://peps.python.org/pep-0508/#names
-      m = builtins.match "^([a-zA-Z0-9_.-]+).*" dep;
-    in
-    if m != null then builtins.head m else dep;
 in
-pythonPkgs.buildPythonPackage {
+pythonPkgs.buildPythonApplication {
   pname = toml.project.name or "example";
   version = toml.project.version or "0.1.0";
   format = "pyproject";
