@@ -76,13 +76,6 @@ Hooks run automatically on `git commit`. To run manually:
 nix flake check
 ```
 
-## How It Works
-
-1. **Version detection** — `develop/lib/module/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
-2. **Package build** — `develop/packages/default/default.nix` builds a `buildPythonPackage` from `pyproject.toml`, mapping all `build-system.requires` and `project.dependencies` to nixpkgs Python packages.
-3. **Dev shell** — `develop/shells/default/default.nix` auto-generates a `mkShell` with the correct Python + all dependencies + git hook shellHook.
-4. **Git hooks** — `develop/checks/git-hooks/default.nix` runs `ruff` and `ruff-format` via cachix/git-hooks.nix.
-
 ## Project Structure
 
 ```
@@ -102,6 +95,13 @@ nix flake check
     ├── shells/default/default.nix     # Dev shell with all deps + hooks
     └── checks/git-hooks/default.nix   # ruff + ruff-format pre-commit
 ```
+
+## How It Works
+
+1. **Version detection** — `develop/lib/module/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
+2. **Package build** — `develop/packages/default/default.nix` builds a `buildPythonPackage` from `pyproject.toml`, mapping all `build-system.requires` and `project.dependencies` to nixpkgs Python packages.
+3. **Dev shell** — `develop/shells/default/default.nix` auto-generates a `mkShell` with the correct Python + all dependencies + git hook shellHook.
+4. **Git hooks** — `develop/checks/git-hooks/default.nix` runs `ruff` and `ruff-format` via cachix/git-hooks.nix.
 
 ## References
 
