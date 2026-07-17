@@ -4,8 +4,6 @@
 
 Nix flake template for Python development — reproducible dev shell with auto-configured Python version, package build, and pre-commit hooks out of the box. Uses [purr](https://flakehub.com/f/nixcafe/purr) as the flake framework and [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix) for linting/formatting on commit.
 
-Part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection (`nix flake init`-ready).
-
 ## What's Inside
 
 | Tool | Purpose |
@@ -17,31 +15,14 @@ Part of the [develop-templates](https://github.com/nixcafe/develop-templates) co
 
 ## Quick Start
 
-### `nix flake init`
-
 ```bash
-nix flake init -t "github:nixcafe/develop-templates#python" --refresh
-```
+# clone template
+git clone <repo> my-project && cd my-project
 
-Register an alias:
-```bash
-nix registry add beans "github:nixcafe/develop-templates"
-nix flake init -t beans#python
-```
-
-> **Tip**: With [cattery-modules](https://github.com/nixcafe/cattery-modules), `beans` is pre-registered.
-
-### Create from Template
-
-```bash
-gh repo create my-python-project --template nixcafe/python --clone
-```
-
-### Enter the Dev Shell
-
-```bash
+# allow direnv
 direnv allow
-# done — dev shell is ready, python version auto-detected
+
+# done — dev shell is ready
 python -c "import example; print('works')"
 ```
 
