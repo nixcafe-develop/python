@@ -3,7 +3,6 @@
   namespace,
   pkgs,
   inputs,
-  mkShell,
   system,
   ...
 }:
@@ -14,7 +13,7 @@ let
 
   currentPackage = inputs.self.packages.${system}.default;
 in
-mkShell {
+pkgs.mkShell {
   packages = [
     (python.withPackages (
       ps:
@@ -26,5 +25,5 @@ mkShell {
   ];
 
   inputsFrom = [ currentPackage ];
-  inherit (inputs.self.checks.${system}.pre-commit-check) shellHook;
+  inherit (inputs.self.checks.${system}.git-hooks) shellHook;
 }

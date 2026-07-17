@@ -27,5 +27,5 @@ pythonPkgs.buildPythonPackage {
 
   dependencies = mapPackages pythonPkgs toml.project.dependencies;
 
-  buildInputs = inputs.self.checks.${system}.pre-commit-check.enabledPackages;
+  buildInputs = inputs.self.checks.${system}.git-hooks.enabledPackages;
 }
