@@ -1,19 +1,10 @@
 # Nix Flake · Python Dev Template
 
-> purr · git-hooks · python · ruff · pyproject · uv · reproducible · nix-flake
+> purr · git-hooks · python · ruff · pyproject · nix-flake
 
 Nix flake template for Python development — reproducible dev shell with auto-configured Python version, package build, and pre-commit hooks out of the box. Uses [purr](https://flakehub.com/f/nixcafe/purr) as the flake framework and [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix) for linting/formatting on commit.
 
 Part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection (`nix flake init`-ready).
-
-## What's Inside
-
-| Tool | Purpose |
-|------|---------|
-| `python3` | Python interpreter version auto-detected from `pyproject.toml` |
-| `ruff` | Fast Python linter (enforced on commit) |
-| `ruff-format` | Fast Python formatter (enforced on commit) |
-| `hatchling` | PEP 517 build backend |
 
 ## Quick Start
 
@@ -46,6 +37,15 @@ python -c "import example; print('works')"
 ```
 
 Requires [Nix](https://nixos.org/download) with [flakes enabled](https://nixos.wiki/wiki/Flakes) and [direnv](https://direnv.net/) installed.
+
+## What's Inside
+
+| Tool | Purpose |
+|------|---------|
+| `python3` | Python interpreter version auto-detected from `pyproject.toml` |
+| `ruff` | Fast Python linter (enforced on commit) |
+| `ruff-format` | Fast Python formatter (enforced on commit) |
+| `hatchling` | PEP 517 build backend |
 
 ## Customizing
 
