@@ -4,6 +4,8 @@
 
 Nix flake template for Python development — reproducible dev shell with auto-configured Python version, package build, and pre-commit hooks out of the box. Uses [purr](https://flakehub.com/f/nixcafe/purr) as the flake framework and [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix) for linting/formatting on commit.
 
+Part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection (`nix flake init`-ready).
+
 ## What's Inside
 
 | Tool | Purpose |
@@ -15,14 +17,31 @@ Nix flake template for Python development — reproducible dev shell with auto-c
 
 ## Quick Start
 
+### `nix flake init`
+
 ```bash
-# clone template
-git clone <repo> my-project && cd my-project
+nix flake init -t "github:nixcafe/develop-templates#python" --refresh
+```
 
-# allow direnv
+Register an alias:
+```bash
+nix registry add beans "github:nixcafe/develop-templates"
+nix flake init -t beans#python
+```
+
+> **Tip**: With [cattery-modules](https://github.com/nixcafe/cattery-modules), `beans` is pre-registered.
+
+### Create from Template
+
+```bash
+gh repo create my-python-project --template nixcafe/python --clone
+```
+
+### Enter the Dev Shell
+
+```bash
 direnv allow
-
-# done — dev shell is ready
+# done — dev shell is ready, python version auto-detected
 python -c "import example; print('works')"
 ```
 
@@ -76,13 +95,6 @@ Hooks run automatically on `git commit`. To run manually:
 nix flake check
 ```
 
-## How It Works
-
-1. **Version detection** — `develop/lib/module/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
-2. **Package build** — `develop/packages/default/default.nix` builds a `buildPythonPackage` from `pyproject.toml`, mapping all `build-system.requires` and `project.dependencies` to nixpkgs Python packages.
-3. **Dev shell** — `develop/shells/default/default.nix` auto-generates a `mkShell` with the correct Python + all dependencies + git hook shellHook.
-4. **Git hooks** — `develop/checks/git-hooks/default.nix` runs `ruff` and `ruff-format` via cachix/git-hooks.nix.
-
 ## Project Structure
 
 ```
@@ -102,6 +114,13 @@ nix flake check
     ├── shells/default/default.nix     # Dev shell with all deps + hooks
     └── checks/git-hooks/default.nix   # ruff + ruff-format pre-commit
 ```
+
+## How It Works
+
+1. **Version detection** — `develop/lib/module/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
+2. **Package build** — `develop/packages/default/default.nix` builds a `buildPythonPackage` from `pyproject.toml`, mapping all `build-system.requires` and `project.dependencies` to nixpkgs Python packages.
+3. **Dev shell** — `develop/shells/default/default.nix` auto-generates a `mkShell` with the correct Python + all dependencies + git hook shellHook.
+4. **Git hooks** — `develop/checks/git-hooks/default.nix` runs `ruff` and `ruff-format` via cachix/git-hooks.nix.
 
 ## References
 
