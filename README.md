@@ -98,7 +98,7 @@ nix flake check
 
 ## How It Works
 
-1. **Version detection** — `develop/lib/module/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
+1. **Version detection** — `develop/lib/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
 2. **Package build** — `develop/packages/default/default.nix` builds a `buildPythonPackage` from `pyproject.toml`, mapping all `build-system.requires` and `project.dependencies` to nixpkgs Python packages.
 3. **Dev shell** — `develop/shells/default/default.nix` auto-generates a `mkShell` with the correct Python + all dependencies + git hook shellHook.
 4. **Git hooks** — `develop/checks/git-hooks/default.nix` runs `ruff` and `ruff-format` via cachix/git-hooks.nix.

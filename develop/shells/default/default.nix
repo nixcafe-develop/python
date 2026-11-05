@@ -9,7 +9,7 @@
 let
   inherit (lib.${namespace}) pythonVersion mapPackages toml;
 
-  python = pkgs."python${pythonVersion}";
+  python = pkgs.${pythonVersion};
 
   currentPackage = inputs.self.packages.${system}.default;
 in
