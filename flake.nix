@@ -14,5 +14,6 @@
     inputs.purr.lib.mkFlake {
       inherit inputs;
       src = ./develop;
+      namespace = "python";
     };
 }

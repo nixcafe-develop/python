@@ -13,7 +13,7 @@ let
     mapPackages
     ;
 
-  python = pkgs."python${pythonVersion}";
+  python = pkgs.${pythonVersion};
   pythonPkgs = python.pkgs;
 in
 pythonPkgs.buildPythonPackage {
