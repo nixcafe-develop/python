@@ -1,63 +1,82 @@
-# Nix Flake · Python Dev Template
+# Python development template
 
-> purr · git-hooks · python · ruff · pyproject · uv · reproducible · nix-flake
+Nix flake template for Python projects. The development shell uses the Python version from `requires-python`, installs the project package and its runtime dependencies, and enables `ruff` hooks for commits. The flake is built with [purr](https://flakehub.com/f/nixcafe/purr) and [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix).
 
-Nix flake template for Python development — reproducible dev shell with auto-configured Python version, package build, and pre-commit hooks out of the box. Uses [purr](https://flakehub.com/f/nixcafe/purr) as the flake framework and [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix) for linting/formatting on commit.
+This repository is part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection.
 
-## What's Inside
+## Quick start
+
+Create a project from the template:
+
+```bash
+nix flake init -t "github:nixcafe/develop-templates#python" --refresh
+```
+
+To use a shorter registry name:
+
+```bash
+nix registry add beans "github:nixcafe/develop-templates"
+nix flake init -t beans#python
+```
+
+If you use [cattery-modules](https://github.com/nixcafe/cattery-modules), the `beans` registry entry already exists.
+
+You can also create a GitHub repository from this template:
+
+```bash
+gh repo create my-python-project --template nixcafe-develop/python --clone
+```
+
+Enter the development shell:
+
+```bash
+direnv allow
+python -c "import example; print(example.__version__)"
+example
+```
+
+You need [Nix](https://nixos.org/download) with [flakes enabled](https://nixos.wiki/wiki/Flakes). [direnv](https://direnv.net/) is optional; without it, use `nix develop`.
+
+## What's included
 
 | Tool | Purpose |
 |------|---------|
-| `python3` | Python interpreter version auto-detected from `pyproject.toml` |
-| `ruff` | Fast Python linter (enforced on commit) |
-| `ruff-format` | Fast Python formatter (enforced on commit) |
-| `hatchling` | PEP 517 build backend |
+| Python | Interpreter selected from `requires-python` (`>=3.12` selects `python312`) |
+| `ruff` | Linter, enabled as a pre-commit hook |
+| `ruff-format` | Formatter, enabled as a pre-commit hook |
+| `hatchling` | Build backend declared in `pyproject.toml` |
 
-## Quick Start
+The shell installs the project package and every package in `project.dependencies`. `build-system.requires` is used to build the package.
 
-```bash
-# clone template
-git clone <repo> my-project && cd my-project
+## Customization
 
-# allow direnv
-direnv allow
+### Change the Python version
 
-# done — dev shell is ready
-python -c "import example; print('works')"
-```
-
-Requires [Nix](https://nixos.org/download) with [flakes enabled](https://nixos.wiki/wiki/Flakes) and [direnv](https://direnv.net/) installed.
-
-## Customizing
-
-### Change Python Version
-
-Edit `requires-python` in `pyproject.toml`:
+Set `requires-python` in `pyproject.toml`. The Nix code reads the major and minor version, so `>=3.12` selects `pkgs.python312`. If the field is missing or has no major and minor version, it uses `pkgs.python3`:
 
 ```toml
 [project]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 ```
 
-### Add Dependencies
+### Add dependencies
 
-Add runtime dependencies to `pyproject.toml`:
+Add runtime dependencies to `project.dependencies`. They are passed to both the package build and the shell:
 
 ```toml
 [project]
 dependencies = ["requests", "click>=8"]
 ```
 
-Add dev dependencies:
+Version specifiers are removed before the name is looked up in nixpkgs, so `click>=8` uses `pkgs.python312Packages.click`.
 
-```toml
-[dependency-groups]
-dev = ["pytest", "mypy"]
-```
+Add build dependencies to `build-system.requires`.
 
-### Pre-commit Hooks
+The Nix expressions do not read `[dependency-groups]`. To add a development tool to the shell, add it to the `python.withPackages` list in `develop/shells/default/default.nix`.
 
-Configured via `develop/checks/git-hooks/default.nix`:
+### Pre-commit hooks
+
+`develop/checks/git-hooks/default.nix` enables ruff and ruff-format:
 
 ```nix
 { inputs, system, ... }:
@@ -70,42 +89,49 @@ inputs.git-hooks.lib.${system}.run {
 }
 ```
 
-Hooks run automatically on `git commit`. To run manually:
+Hooks run on `git commit`. To run all checks, including the hooks, use `nix flake check`.
 
-```bash
-nix flake check
-```
-
-## Project Structure
+## Project structure
 
 ```
 .
-├── flake.nix                          # Flake entrypoint — wires purr inputs
-├── pyproject.toml                     # Python project metadata & deps
+├── flake.nix                          # flake entrypoint
+├── pyproject.toml                     # project metadata and dependencies
 ├── .envrc                             # direnv integration (use flake)
-├── .gitignore                         # nix artifacts, python cache, etc.
+├── .gitignore
 ├── src/
 │   └── example/
-│       ├── __init__.py
-│       ├── __main__.py
-│       └── main.py                    # Entry point (see project.scripts)
+│       ├── __init__.py                # reads the installed package version
+│       ├── __main__.py                # python -m example
+│       └── main.py                    # entry point for project.scripts
 └── develop/
-    ├── lib/module/default.nix         # TOML parser, pythonVersion, mapPackages
+    ├── lib/default.nix                # TOML parser, pythonVersion, mapPackages
     ├── packages/default/default.nix   # buildPythonPackage derivation
-    ├── shells/default/default.nix     # Dev shell with all deps + hooks
-    └── checks/git-hooks/default.nix   # ruff + ruff-format pre-commit
+    ├── shells/default/default.nix     # development shell
+    └── checks/git-hooks/default.nix   # ruff and ruff-format hooks
 ```
 
-## How It Works
+## How it works
 
-1. **Version detection** — `develop/lib/default.nix` parses `pyproject.toml` (TOML) and resolves the Python version from `requires-python`.
-2. **Package build** — `develop/packages/default/default.nix` builds a `buildPythonPackage` from `pyproject.toml`, mapping all `build-system.requires` and `project.dependencies` to nixpkgs Python packages.
-3. **Dev shell** — `develop/shells/default/default.nix` auto-generates a `mkShell` with the correct Python + all dependencies + git hook shellHook.
-4. **Git hooks** — `develop/checks/git-hooks/default.nix` runs `ruff` and `ruff-format` via cachix/git-hooks.nix.
+1. `develop/lib/default.nix` parses `pyproject.toml` and resolves `requires-python` to a nixpkgs Python attribute, for example `python312`.
+2. `develop/packages/default/default.nix` builds the project with `buildPythonPackage` in `pyproject` format. Entries in `build-system.requires` and `project.dependencies` are mapped to nixpkgs Python packages.
+3. `develop/shells/default/default.nix` creates a shell with that interpreter, the project package, its dependencies, and the git hook shell hook.
+4. `develop/checks/git-hooks/default.nix` enables `ruff` and `ruff-format`.
+
+## Useful commands
+
+```bash
+direnv allow                                      # load the development shell
+nix develop                                       # load the shell without direnv
+nix build                                         # build the default package
+nix flake check                                   # run the flake checks, including the git hooks
+python -c "import example; print(example.__version__)"
+example                                           # run the console script
+```
 
 ## References
 
-- [purr](https://flakehub.com/f/nixcafe/purr) — Nix flake framework
-- [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix) — Configurable git hooks
-- [ruff](https://docs.astral.sh/ruff/) — Fast Python linter & formatter
-- [PEP 508](https://peps.python.org/pep-0508/) — Dependency specification format
+- [purr](https://flakehub.com/f/nixcafe/purr) for the flake framework
+- [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix) for the commit hooks
+- [ruff](https://docs.astral.sh/ruff/) for linting and formatting
+- [PEP 508](https://peps.python.org/pep-0508/) for dependency names and version specifiers
